@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*
+*.mjs
+*.ts
+!next.config.ts
+!postcss.config.*
+!tailwind.config.*
+!tsconfig.json
+.DS_Store
+*.md
