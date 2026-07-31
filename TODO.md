@@ -31,26 +31,20 @@
 
 ## 🔄 Em andamento / Pendente
 
-### 1. Corrigir `scripts/setup-collections.mjs` (PRÓXIMO PASSO)
-- [ ] Permissões: usar helper `Permission` do node-appwrite (ex.: `Permission.read('users')`, `Permission.write('users')`) — servidor 1.8.1 rejeita `role:` e role nua (`"users"`); exige strings `read("users")`
-- [ ] Alinhar nomes/campos ao código (auditoria):
-  - `prestacao_contas_arquivos` → **`pc_arquivos`** (campos `prestacao_contas_id`, `arquivo_url`, `nome_arquivo`, `tipo_arquivo`, `data_upload`)
-  - `smtp_config` → **`configuracoes_smtp`** (`smtp_host`, `smtp_port` int, `smtp_user`, `smtp_password`, `smtp_from_email`, `smtp_from_name`, `smtp_secure` bool, `emails_notificacao_novos_pedidos`, `emails_notificacao_rede`, `test_email_config`, `ativo` bool, `data_atualizacao`)
-  - `configuracoes_sistema` → campos `fonte_padrao`, `updated_at` (doc id `'1'`)
-  - `config_backup` → `horario`, `habilitado` bool, `ultima_execucao`, `updated_at`
-  - `historico_backups` → `data_execucao`, `status`, `nome_arquivo`, `tamanho_bytes` int, `detalhes` (≠ `arquivo_backup`)
-  - `historico_solicitacoes` (NOVA) → `solicitacao_id`, `status_anterior`, `status_novo`, `usuario_cpf`, `usuario_nome`, `observacao`
-  - `usuarios` → + `dados_bancarios` (string JSON), `necessidades_especiais`, `avatar_url`; `tipo_perfil_id`/`categoria_id` como **integer**
-  - `solicitacoes` → `distancia_id`, `valor_a_pagar`, `valor_pago`, `ajuda_custo_extraordinaria`, `desconto_outros_auxilios` como **integer**; `tem_aereo`, `hospedagem_cosems`, `reducao_diarias_50` como **bool**; `data_criacao` **não-required**; `auxilios_terceiros` como string JSON
-  - `prestacao_contas` → `solicitacao_id`, `status`, `objetivo_participacao`, `atividades_realizadas`, `data_envio`, `data_analise`, `motivo_recusa`, `created_at`
-  - Coleções menores p/ backup não falhar: `perfis`, `historico_emails`, `recuperacao_senhas`, `historico_pagamentos`, `email_templates`, `custos`, `deslocamentos`
-- [ ] Buckets: `comprovantes` + `avatares` (uploads via `createAdminClient`; arquivos servidos por `/api/storage/proxy` e view URLs)
-- [ ] Índices: `usuarios.cpf` único, `solicitacoes.protocolo` único, composite `usuario_cpf+situacao`, keys em `situacao`, `status`, etc.
+### 1. Corrigir `scripts/setup-collections.mjs` ✅
+- [x] Permissões: `Permission.read('users')` + `Permission.write('users')` (helper do node-appwrite) — coleções e buckets
+- [x] Alinhar nomes/campos ao código (auditoria): `pc_arquivos`, `configuracoes_smtp`, `configuracoes_sistema`, `config_backup`, `historico_backups`, `historico_solicitacoes` (nova), `usuarios`, `solicitacoes`, `prestacao_contas` + 8 coleções menores
+- [x] Buckets: `comprovantes` + `avatars`
+- [x] Índices: `usuarios.cpf` único, `solicitacoes.protocolo` único, composite `usuario_cpf+situacao`, keys em `situacao`, `status`, etc.
+- [x] Script idempotente: re-executar sincroniza atributos/índices faltantes (rede do VPS cai às vezes — rerun resolve)
+- [x] **Decisão**: valores em reais (`valor_a_pagar`, `valor_pago`, `ajuda_custo_extraordinaria`, `desconto_outros_auxilios`) como **string** (Appwrite não tem float; integer quebraria decimais do fluxo admin) — IDs (`tipo_perfil_id`, `categoria_id`, `distancia_id`, `custo_id`) como **integer**
+- [x] **Decisão**: campos grandes (`objetivo_participacao`, `atividades_realizadas`) com size 20000 (≥16384 = TEXT, não conta no limite MariaDB de 16KB/coleção)
 
-### 2. Executar setup + seeds
-- [ ] Rodar `scripts/setup-collections.mjs` e validar via `appwrite databases list` + console
-- [ ] Rodar `scripts/seed-categorias.mjs` (IDs determinísticos p/ casar com `categoria_id` numérico)
-- [ ] Seed doc `'1'` em `configuracoes_sistema` e `config_backup`
+### 2. Executar setup + seeds ✅ (31/07)
+- [x] `scripts/setup-collections.mjs` rodado — **17 coleções + 2 buckets criados** no servidor (validado via API)
+- [x] `scripts/seed-categorias.mjs` — 5 categorias com IDs determinísticos `1..5` (casa com `categoria_id` numérico via `getDocument(String(id))`)
+- [x] `scripts/seed-configs.mjs` (NOVO) — doc `'1'` em `configuracoes_sistema` (fonte_padrao Arial) e `config_backup` (03:00, desabilitado)
+- [x] Scripts carregam `.env.local` via `process.loadEnvFile()`
 
 ### 3. Fixes de runtime (auditoria)
 - [ ] `dados_bancarios` e `auxilios_terceiros`: código grava **objeto/array** — Appwrite não tem tipo objeto/JSON → patch de código (`JSON.stringify`/`JSON.parse`) nos pontos de escrita/leitura (profile/actions.ts, admin users, requests)
