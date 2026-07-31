@@ -8,7 +8,7 @@ import { UnlockOnUnmount } from './unlock-on-unmount'
 
 export default async function EditRequestPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

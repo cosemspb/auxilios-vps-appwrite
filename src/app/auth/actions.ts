@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient, createAdminClient } from '@/lib/appwrite/server'
+import { cookies } from 'next/headers'
+import { createClient, createAdminClient, SESSION_COOKIE_NAME } from '@/lib/appwrite/server'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 import { loginSchema, completeRegistrationSchema } from '@/lib/schemas'
 import { ID, Query } from 'node-appwrite'
@@ -26,24 +27,36 @@ export async function login(prevState: LoginState, formData: FormData): Promise<
     const { allowed } = checkRateLimit(key, { maxRequests: 5 })
     if (!allowed) return { error: 'Muitas tentativas de login. Aguarde 1 minuto.' }
 
-    const { account } = createClient()
+    const { account } = await createClient()
 
+    let session
     try {
-        await account.createEmailPasswordSession(email, password)
+        session = await account.createEmailPasswordSession(email, password)
     } catch (err: any) {
         console.error('Login error:', err?.message || 'Unknown error')
         return { error: 'Falha na autenticação. Verifique suas credenciais.' }
     }
+
+    const cookieStore = await cookies()
+    cookieStore.set(SESSION_COOKIE_NAME, session.secret, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        expires: new Date(session.expire),
+    })
 
     revalidatePath('/', 'layout')
     redirect('/dashboard')
 }
 
 export async function logout() {
-    const { account } = createClient()
+    const { account } = await createClient()
     try {
         await account.deleteSession('current')
     } catch {}
+    const cookieStore = await cookies()
+    cookieStore.delete(SESSION_COOKIE_NAME)
     revalidatePath('/', 'layout')
     redirect('/login')
 }
@@ -54,7 +67,7 @@ export interface CompleteRegistrationState {
 }
 
 export async function completeRegistration(prevState: CompleteRegistrationState, formData: FormData): Promise<CompleteRegistrationState> {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {

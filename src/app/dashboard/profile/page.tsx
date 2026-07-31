@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { ProfileForm } from './profile-form'
 
 export default async function ProfilePage() {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

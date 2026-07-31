@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function NewRequestPage() {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

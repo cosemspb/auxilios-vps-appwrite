@@ -1,6 +1,6 @@
 'use server'
 
-import { createAdminClient } from '@/lib/appwrite/server'
+import { createClient, createAdminClient } from '@/lib/appwrite/server'
 import { sendEmail } from '@/lib/email/smtp-service'
 import { getResetPasswordTemplate, getInviteTemplate } from '@/lib/email/templates'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
@@ -51,6 +51,16 @@ export async function requestPasswordReset(email: string) {
     }
 }
 
+export async function hasValidSession() {
+    try {
+        const { account } = await createClient()
+        await account.get()
+        return true
+    } catch {
+        return false
+    }
+}
+
 /**
  * Atualiza a senha do usuário (requer sessão autenticada via link de recuperação)
  */
@@ -62,13 +72,10 @@ export async function updatePassword(password: string) {
     if (!allowed) return { success: false, message: 'Muitas tentativas. Aguarde 1 minuto.' }
 
     try {
-        const { account } = createAdminClient()
-
         // Assume user is authenticated via session cookies - need current user
         // For Appwrite, we need to create a user-bound client, not admin
         // Let's create a regular server client
-        const { createClient } = await import('@/lib/appwrite/server')
-        const { account: userAccount } = createClient()
+        const { account: userAccount } = await createClient()
 
         await userAccount.updatePassword(password, '')
 
@@ -270,8 +277,7 @@ export async function updateUserProfile(formData: FormData) {
 
 export async function diagnosticLogin(email: string, password: string) {
     try {
-        const { createClient } = await import('@/lib/appwrite/server')
-        const { account } = createClient()
+        const { account } = await createClient()
         const session = await account.createEmailPasswordSession(email, password)
         await account.deleteSession(session.$id)
         return { success: true, message: 'Login OK' }

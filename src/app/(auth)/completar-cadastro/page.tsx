@@ -4,7 +4,7 @@ import { Query } from 'node-appwrite'
 import { CompletarCadastroForm } from './form'
 
 export default async function CompletarCadastroPage() {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {

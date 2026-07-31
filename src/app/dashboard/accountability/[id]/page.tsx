@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { AdminPDFViewer } from '@/components/accountability/admin-pdf-viewer'
 
 export default async function AccountabilityDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

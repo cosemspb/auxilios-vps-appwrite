@@ -18,7 +18,7 @@ import { TEMPLATES } from '@/lib/email/template-meta'
 import { sendTestTemplateEmailSchema } from '@/lib/schemas'
 
 async function getCurrentUserEmail(): Promise<string | null> {
-    const { account } = createClient()
+    const { account } = await createClient()
     try {
         const user = await account.get()
         return user.email || null

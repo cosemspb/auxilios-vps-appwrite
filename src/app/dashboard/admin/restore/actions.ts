@@ -43,7 +43,7 @@ export async function executeRestore(timestamp: string) {
             return { success: false, message: parsed.error.issues[0].message }
         }
 
-        const { account, databases } = createClient()
+        const { account, databases } = await createClient()
 
         let user
         try {

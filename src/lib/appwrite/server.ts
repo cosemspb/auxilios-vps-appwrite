@@ -1,20 +1,28 @@
 import 'server-only'
+import { cookies } from 'next/headers'
 import { Client, Account, Users, Databases, Storage, Query } from 'node-appwrite'
+import { SESSION_COOKIE_NAME } from '@/lib/appwrite/session-cookie'
 
 let adminClientInstance: Client | null = null
-let userClientInstance: Client | null = null
 
-export function createClient() {
-    if (!userClientInstance) {
-        userClientInstance = new Client()
-            .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-            .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
+export async function createClient() {
+    const client = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
+
+    try {
+        const cookieStore = await cookies()
+        const session = cookieStore.get(SESSION_COOKIE_NAME)?.value
+        if (session) client.setSession(session)
+    } catch {
+        // cookies() unavailable (e.g., non-request context) — no session
     }
+
     return {
-        client: userClientInstance,
-        account: new Account(userClientInstance),
-        databases: new Databases(userClientInstance),
-        storage: new Storage(userClientInstance),
+        client,
+        account: new Account(client),
+        databases: new Databases(client),
+        storage: new Storage(client),
         Query,
     }
 }
@@ -36,4 +44,4 @@ export function createAdminClient() {
     }
 }
 
-export { Query }
+export { Query, SESSION_COOKIE_NAME }

@@ -7,7 +7,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { formatDate, getDeadline, getDeadlineColor, getDaysRemaining } from '@/lib/format-utils'
 
 export default async function AccountabilityListPage() {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

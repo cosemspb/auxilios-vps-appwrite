@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { Client, Account } from 'node-appwrite'
+import { SESSION_COOKIE_NAME } from '@/lib/appwrite/session-cookie'
 
 const publicRoutes = ['/login', '/forgot-password', '/recover-password', '/update-password', '/auth/callback']
 const pendingRoutes = ['/completar-cadastro']
@@ -18,12 +19,9 @@ export async function proxy(request: NextRequest) {
             .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
             .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
 
-        // Forward cookies from the request for session auth
-        const cookieHeader = request.headers.get('cookie') || ''
-        if (cookieHeader) {
-            // node-appwrite client can use cookies via the client config
-            // Pass cookies via the HTTP headers
-        }
+        // Forward session cookie to Appwrite for SSR auth
+        const session = request.cookies.get(SESSION_COOKIE_NAME)?.value
+        if (session) client.setSession(session)
 
         const account = new Account(client)
         user = await account.get()

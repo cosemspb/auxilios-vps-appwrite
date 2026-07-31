@@ -7,7 +7,7 @@ import { updateAccountabilityStatusSchema, saveAccountabilityDraftSchema, upload
 import { ID } from 'node-appwrite'
 
 async function requireAuth() {
-    const { account } = createClient()
+    const { account } = await createClient()
     try {
         return await account.get()
     } catch {

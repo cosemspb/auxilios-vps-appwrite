@@ -7,7 +7,7 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {

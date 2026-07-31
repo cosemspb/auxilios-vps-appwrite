@@ -15,7 +15,7 @@ export default async function DashboardPage({
 }: {
     searchParams: Promise<{ view?: string }>
 }) {
-    const { account } = createClient()
+    const { account } = await createClient()
     const params = await searchParams
 
     let user

@@ -32,7 +32,7 @@ export async function getBackupHistory(page = 1, limit = 10) {
 
 export async function executeBackup() {
     try {
-        const { account, databases } = createClient()
+        const { account, databases } = await createClient()
 
         let user
         try {
@@ -94,7 +94,7 @@ export async function saveSchedule(horario: string, habilitado: boolean) {
             return { success: false, message: parsed.error.issues[0].message }
         }
 
-        const { account, databases } = createClient()
+        const { account, databases } = await createClient()
 
         let user
         try {

@@ -61,7 +61,7 @@ export async function checkRequestLock(requestId: string): Promise<{ locked: boo
 }
 
 export async function createRequest(prevState: any, formData: FormData) {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {
@@ -187,7 +187,7 @@ export async function createRequest(prevState: any, formData: FormData) {
 }
 
 export async function updateRequest(prevState: any, formData: FormData) {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {

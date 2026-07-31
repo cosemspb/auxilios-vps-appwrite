@@ -34,7 +34,7 @@ export async function recoverPassword(prevState: State, formData: FormData): Pro
         const user = documents[0] as any
 
         // 2. Send password reset via Appwrite recovery
-        const { account } = createClient()
+        const { account } = await createClient()
         const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback?type=recovery`
 
         await account.createRecovery(user.email, redirectUrl)

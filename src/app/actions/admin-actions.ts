@@ -27,7 +27,7 @@ function formatDoc(doc: any): any {
 }
 
 async function requireProfile(minRole: number) {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {

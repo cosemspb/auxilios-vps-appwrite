@@ -25,7 +25,7 @@ export async function cleanForLaunch() {
             }
         }
 
-        const { account, databases } = createClient()
+        const { account, databases } = await createClient()
 
         let user
         try {
@@ -106,7 +106,7 @@ export async function resetDatabase() {
             }
         }
 
-        const { account, databases } = createClient()
+        const { account, databases } = await createClient()
 
         let user
         try {

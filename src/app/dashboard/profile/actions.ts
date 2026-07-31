@@ -12,7 +12,7 @@ export interface ProfileState {
 }
 
 export async function updateProfile(prevState: ProfileState, formData: FormData): Promise<ProfileState> {
-    const { account, databases } = createClient()
+    const { account, databases } = await createClient()
 
     let user
     try {
@@ -109,7 +109,7 @@ export interface ChangePasswordState {
 }
 
 export async function changePassword(prevState: ChangePasswordState, formData: FormData): Promise<ChangePasswordState> {
-    const { account } = createClient()
+    const { account } = await createClient()
 
     let user
     try {
