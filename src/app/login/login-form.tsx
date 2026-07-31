@@ -29,6 +29,7 @@ export function LoginForm() {
                 <img src="/logo.png" alt="Logo COSEMS PB" className="h-16 mb-4" />
                 <h1 className="text-2xl font-bold text-primary">Gestão de Auxílios</h1>
                 <p className="text-gray-500">Faça login para continuar</p>
+                <span className="appwrite-badge md mt-3" title="Ambiente: Appwrite">AW</span>
             </div>
 
             <form action={formAction} className="space-y-4">

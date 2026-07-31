@@ -396,6 +396,20 @@ a { color: inherit; text-decoration: none; }
   margin-top: 0.15rem;
   white-space: nowrap;
 }
+.appwrite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #800020;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.appwrite-badge.sm { font-size: 0.6rem; padding: 0.25rem 0.5rem; }
+.appwrite-badge.md { font-size: 0.7rem; padding: 0.35rem 0.6rem; }
 
 .nav-link-default { color: #1d273b; }
 .nav-link-default:hover { color: var(--primary); background-color: rgba(32, 107, 196, 0.05); }

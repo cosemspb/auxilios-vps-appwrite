@@ -62,7 +62,7 @@ async function main() {
     }
 
     // 1. usuarios
-    await createCollection('usuarios', 'Usuários', ['role:member'], [
+    await createCollection('usuarios', 'Usuários', ['users'], [
         { key: 'auth_id', size: 255, required: true },
         { key: 'nome', size: 255, required: true },
         { key: 'email', size: 255, required: true },
@@ -84,7 +84,7 @@ async function main() {
     ])
 
     // 2. solicitacoes
-    await createCollection('solicitacoes', 'Solicitações', ['role:member'], [
+    await createCollection('solicitacoes', 'Solicitações', ['users'], [
         { key: 'protocolo', size: 50, required: true },
         { key: 'situacao', size: 50, required: true },
         { key: 'usuario_cpf', size: 14, required: true },
@@ -121,7 +121,7 @@ async function main() {
     ])
 
     // 3. prestacao_contas
-    await createCollection('prestacao_contas', 'Prestação de Contas', ['role:member'], [
+    await createCollection('prestacao_contas', 'Prestação de Contas', ['users'], [
         { key: 'solicitacao_id', size: 255, required: true },
         { key: 'status', size: 50, required: true },
         { key: 'data_envio', size: 50, required: true },
@@ -135,7 +135,7 @@ async function main() {
     ])
 
     // 4. prestacao_contas_arquivos
-    await createCollection('prestacao_contas_arquivos', 'Arquivos de Prestação', ['role:member'], [
+    await createCollection('prestacao_contas_arquivos', 'Arquivos de Prestação', ['users'], [
         { key: 'accountability_id', size: 255, required: true },
         { key: 'tipo', size: 50, required: true },
         { key: 'nome_original', size: 500, required: true },
@@ -148,7 +148,7 @@ async function main() {
     ])
 
     // 5. categorias
-    await createCollection('categorias', 'Categorias', ['role:member'], [
+    await createCollection('categorias', 'Categorias', ['users'], [
         { key: 'nome_categoria', size: 255, required: true },
         { key: 'valor_diaria', size: 20, required: true },
         { key: 'created_at', size: 50, required: false },
@@ -157,7 +157,7 @@ async function main() {
     ])
 
     // 6. distancias
-    await createCollection('distancias', 'Distâncias', ['role:member'], [
+    await createCollection('distancias', 'Distâncias', ['users'], [
         { key: 'origem', size: 255, required: true },
         { key: 'destino', size: 255, required: true },
         { key: 'valor', size: 20, required: true },
@@ -165,7 +165,7 @@ async function main() {
     ])
 
     // 7. custos
-    await createCollection('custos', 'Custos', ['role:member'], [
+    await createCollection('custos', 'Custos', ['users'], [
         { key: 'descricao', size: 255, required: true },
         { key: 'valor', size: 20, required: true },
         { key: 'categoria_id', size: 10, required: false },
@@ -173,7 +173,7 @@ async function main() {
     ])
 
     // 8. deslocamentos
-    await createCollection('deslocamentos', 'Deslocamentos', ['role:member'], [
+    await createCollection('deslocamentos', 'Deslocamentos', ['users'], [
         { key: 'solicitacao_id', size: 255, required: true },
         { key: 'origem', size: 255, required: true },
         { key: 'destino', size: 255, required: true },
@@ -184,7 +184,7 @@ async function main() {
     ])
 
     // 9. email_templates
-    await createCollection('email_templates', 'Modelos de E-mail', ['role:member'], [
+    await createCollection('email_templates', 'Modelos de E-mail', ['users'], [
         { key: 'nome', size: 100, required: true },
         { key: 'assunto', size: 500, required: true },
         { key: 'corpo_html', size: 10000, required: true },
@@ -196,7 +196,7 @@ async function main() {
     ])
 
     // 10. smtp_config
-    await createCollection('smtp_config', 'Configuração SMTP', ['role:member'], [
+    await createCollection('smtp_config', 'Configuração SMTP', ['users'], [
         { key: 'host', size: 255, required: true },
         { key: 'port', size: 10, required: true },
         { key: 'user', size: 255, required: true },
@@ -209,7 +209,7 @@ async function main() {
     ])
 
     // 11. configuracoes_sistema
-    await createCollection('configuracoes_sistema', 'Configurações do Sistema', ['role:member'], [
+    await createCollection('configuracoes_sistema', 'Configurações do Sistema', ['users'], [
         { key: 'chave', size: 100, required: true },
         { key: 'valor', size: 2000, required: true },
         { key: 'created_at', size: 50, required: false },
@@ -219,7 +219,7 @@ async function main() {
     ])
 
     // 12. config_backup
-    await createCollection('config_backup', 'Configuração de Backup', ['role:member'], [
+    await createCollection('config_backup', 'Configuração de Backup', ['users'], [
         { key: 'horario', size: 10, required: false },
         { key: 'habilitado', size: 5, required: false, default: 'false' },
         { key: 'ultima_execucao', size: 50, required: false },
@@ -228,7 +228,7 @@ async function main() {
     ])
 
     // 13. historico_backups
-    await createCollection('historico_backups', 'Histórico de Backups', ['role:member'], [
+    await createCollection('historico_backups', 'Histórico de Backups', ['users'], [
         { key: 'tipo', size: 50, required: true },
         { key: 'status', size: 50, required: true },
         { key: 'arquivo', size: 500, required: false },
@@ -240,7 +240,7 @@ async function main() {
     ])
 
     // 14. historico_pagamentos (from report-actions)
-    await createCollection('historico_pagamentos', 'Histórico de Pagamentos', ['role:member'], [
+    await createCollection('historico_pagamentos', 'Histórico de Pagamentos', ['users'], [
         { key: 'solicitacao_id', size: 255, required: true },
         { key: 'usuario_cpf', size: 14, required: true },
         { key: 'valor', size: 20, required: true },
@@ -257,8 +257,8 @@ async function main() {
     for (const [id, name] of [['comprovantes', 'Comprovantes'], ['avatars', 'Avatares']]) {
         try {
             await storage.createBucket(id, name, [
-                'role:member'
-            ], false, undefined, undefined, ['role:member'])
+                'users'
+            ], false, undefined, undefined, ['users'])
             console.log(`  Bucket "${name}" (${id}) criado`)
         } catch (e) {
             console.log(`  Bucket "${name}": ${e.message}`)

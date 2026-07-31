@@ -69,6 +69,7 @@ export function Sidebar({ user, userRole }: { user: any; userRole?: number }) {
                 <img src="/logo.png" alt="COSEMS PB" width="140" />
                 <HeartHandshake className="brand-icon" />
                 <span className="brand-label">Gestão de Auxílios</span>
+                <span className="appwrite-badge sm mt-1.5" title="Ambiente: Appwrite">AW</span>
             </div>
 
             <div className="flex flex-col items-center px-6 pb-4 mb-6">
