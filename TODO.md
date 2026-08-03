@@ -1,11 +1,27 @@
 # TODO — Migração Supabase → Appwrite (Port)
 
-> Última atualização: 31/07/2026 — Projeto: `C:\_Apps\auxilios-vps-appwrite`
+> Última atualização: 03/08/2026 — Projeto: `C:\_Apps\auxilios-vps-appwrite`
 > Servidor: `https://vps.cosemspb.org/v1` (Appwrite 1.8.1) · Projeto: `auxilios` · Repo: `cosemspb/auxilios-vps-appwrite` (master)
 
 ---
 
 ## ✅ Já realizado
+
+### Infra + Banco (03/08 — commits `bc8769c` e `153da8d`, push OK)
+- [x] `public/` (12 assets: logos, `pdf.worker.min.mjs`, favicons) copiado para a raiz e commitado
+- [x] `scripts/setup-collections.mjs` reescrito e **executado contra o servidor**
+- [x] **17 coleções + 2 buckets criados na VPS** (validado via API): `categorias`, `usuarios`, `distancias`, `configuracoes_sistema`, `email_templates`, `configuracoes_smtp`, `solicitacoes`, `prestacao_contas`, `pc_arquivos`, `custos`, `deslocamentos`, `historico_solicitacoes`, `historico_backups`, `config_backup`, `recuperacao_senhas`, `perfis`, `historico_emails` + buckets `comprovantes`, `avatars`
+- [x] Atributos/índices conferidos coleção a coleção via `listAttributes`/`listIndexes` (usuários 16/5, solicitacoes 42/6 incl. composite `usuario_cpf+situacao`, pc_arquivos 5/1, prestacao_contas 8/2, email_templates 6/1)
+- [x] Seeds executados: 5 **categorias com IDs determinísticos `1..5`** (`seed-categorias.mjs`) + `seed-configs.mjs` (doc `'1'` em `configuracoes_sistema` e `config_backup`)
+- [x] Scripts idempotentes e carregam `.env.local` via `process.loadEnvFile()`
+
+### Decisões tomadas no schema (03/08)
+- [x] Valores monetários (`valor_a_pagar`, `valor_pago`, `ajuda_custo_extraordinaria`, `desconto_outros_auxilios`) como **string** — Appwrite não tem tipo float, e o admin envia casas decimais (`(diffDays * dailyRate) + distanceValue`); integer quebraria o fluxo de aprovação
+- [x] IDs numéricos (`tipo_perfil_id`, `categoria_id`, `distancia_id`, `custo_id`) como **integer** (código grava `parseInt`/`Number`)
+- [x] Campos grandes (`objetivo_participacao`, `atividades_realizadas`) com size **20000** — Appwrite/MariaDB limita 16KB por coleção; size ≥16384 vira TEXT e não conta no orçamento
+- [x] `status` em `usuarios`: `required=false` + default `'pendente'` (Appwrite 1.8 não aceita default em atributo required)
+- [x] `historico_pagamentos` **não criada** — nada no código a referencia (fonte canônica = `backup-service.ts`, 17 coleções)
+- [x] Coleções **não são** documentSecurity (tudo via API key/`createAdminClient`)
 
 ### Código (commit `f9f155f` — push OK)
 - [x] `src/lib/appwrite/server.ts`: `createClient()` async com novo `Client` por request + `setSession()` via cookie; `createAdminClient()` singleton
@@ -40,13 +56,26 @@
 - [x] **Decisão**: valores em reais (`valor_a_pagar`, `valor_pago`, `ajuda_custo_extraordinaria`, `desconto_outros_auxilios`) como **string** (Appwrite não tem float; integer quebraria decimais do fluxo admin) — IDs (`tipo_perfil_id`, `categoria_id`, `distancia_id`, `custo_id`) como **integer**
 - [x] **Decisão**: campos grandes (`objetivo_participacao`, `atividades_realizadas`) com size 20000 (≥16384 = TEXT, não conta no limite MariaDB de 16KB/coleção)
 
-### 2. Executar setup + seeds ✅ (31/07)
+### 2. Executar setup + seeds ✅ (03/08)
 - [x] `scripts/setup-collections.mjs` rodado — **17 coleções + 2 buckets criados** no servidor (validado via API)
 - [x] `scripts/seed-categorias.mjs` — 5 categorias com IDs determinísticos `1..5` (casa com `categoria_id` numérico via `getDocument(String(id))`)
 - [x] `scripts/seed-configs.mjs` (NOVO) — doc `'1'` em `configuracoes_sistema` (fonte_padrao Arial) e `config_backup` (03:00, desabilitado)
 - [x] Scripts carregam `.env.local` via `process.loadEnvFile()`
 
-### 3. Fixes de runtime (auditoria)
+---
+
+## ✅ O que está funcionando (03/08)
+- [x] **Banco na VPS**: 17 coleções com atributos/índices corretos + buckets `comprovantes` e `avatars`
+- [x] **Seeds**: 5 categorias (IDs `1..5`), `configuracoes_sistema` doc `'1'` (fonte Arial), `config_backup` doc `'1'` (03:00, desabilitado)
+- [x] **Auth Appwrite SSR**: login/logout + cookie `a_session_auxilios`, middleware `src/app/proxy.ts`, `hasValidSession()`
+- [x] **Build/typecheck**: `npx tsc --noEmit` e `npm run build` OK no último commit de código (`f9f155f`)
+- [x] **Assets**: `public/` completo no repo (selo autorizado, assinatura eletrônica, logos, `pdf.worker.min.mjs`)
+
+---
+
+## 🔴 Bugs conhecidos / pendentes
+
+### 3. Fixes de runtime (auditoria) — **PRÓXIMO PASSO**
 - [ ] `dados_bancarios` e `auxilios_terceiros`: código grava **objeto/array** — Appwrite não tem tipo objeto/JSON → patch de código (`JSON.stringify`/`JSON.parse`) nos pontos de escrita/leitura (profile/actions.ts, admin users, requests)
 - [ ] `requests/page.tsx` usa `NEXT_PUBLIC_APPWRITE_DATABASE_ID` → trocar por `APPWRITE_DATABASE_ID` ou renomear env
 - [ ] `historico_backups`: página admin/backup lê `arquivo_backup` mas service grava `nome_arquivo` → alinhar
@@ -60,6 +89,22 @@
 - [ ] Confirmar DNS A `auxilios.cosemspb.org → 108.174.151.235`
 - [ ] Empacotar `.next` + `public` + `package.json` + node_modules em tar.gz → `POST /v1/sites/auxilios-web/deployments` com `activate=true` (padrão roomlist-web)
 - [ ] Testar produção: login, fluxo completo de solicitação, upload de comprovantes, PC, backup/restore
+
+---
+
+## ▶️ Próximo passo exato (passo 3 — fix de runtime, `dados_bancarios`)
+
+**Objetivo:** fazer o app escrever/ler campos do tipo objeto/array como **string JSON** no Appwrite (única forma aceita pelo 1.8.1).
+
+1. `src/app/dashboard/profile/actions.ts` — ao salvar perfil, gravar `dados_bancarios: JSON.stringify({ banco, agencia, conta, pix })` em vez do objeto (linha ~85)
+2. `src/app/dashboard/requests/actions.ts` — ao criar solicitação, gravar `auxilios_terceiros: JSON.stringify(auxilios_terceiros)` (linha ~167)
+3. Todos os pontos que **leem** `dados_bancarios` (forma: `profile.dados_bancarios?.banco` etc.) e `auxilios_terceiros` → aplicar `JSON.parse` defensivo (helper `safeJsonParse` ou try/catch)
+   - `src/app/dashboard/requests/actions.ts` (validação de cadastro completo, linhas ~91-96)
+   - admin users (`src/app/actions/admin-actions.ts`, `formatDoc`) e páginas que exibem/permitem editar
+4. Rodar `npx tsc --noEmit` e `npm run build`
+5. (Se necessário) gerar 1 usuário de teste + `createDocument` via API para validar gravação de JSON
+
+Depois: fechar itens `requests/page.tsx` env, `historico_backups.arquivo_backup` (linha: páginas usam `arquivo_backup`, service grava `nome_arquivo`), e permissões docs — então avançar p/ **passo 4 (Site Appwrite + Deploy)**.
 
 ---
 
