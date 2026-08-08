@@ -9,7 +9,7 @@ export default async function RequestsPage() {
         const user = await account.get()
 
         const { documents } = await databases.listDocuments(
-            process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+            process.env.APPWRITE_DATABASE_ID!,
             'usuarios',
             []
         )
@@ -17,7 +17,7 @@ export default async function RequestsPage() {
         if (!profile?.cpf) return <RequestsList requests={[]} />
 
         const { documents: requests } = await databases.listDocuments(
-            process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
+            process.env.APPWRITE_DATABASE_ID!,
             'solicitacoes',
             [Query.equal('usuario_cpf', profile.cpf)]
         )

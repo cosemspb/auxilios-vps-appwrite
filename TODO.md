@@ -75,10 +75,10 @@
 
 ## 🔴 Bugs conhecidos / pendentes
 
-### 3. Fixes de runtime (auditoria) — **PRÓXIMO PASSO**
-- [ ] `dados_bancarios` e `auxilios_terceiros`: código grava **objeto/array** — Appwrite não tem tipo objeto/JSON → patch de código (`JSON.stringify`/`JSON.parse`) nos pontos de escrita/leitura (profile/actions.ts, admin users, requests)
-- [ ] `requests/page.tsx` usa `NEXT_PUBLIC_APPWRITE_DATABASE_ID` → trocar por `APPWRITE_DATABASE_ID` ou renomear env
-- [ ] `historico_backups`: página admin/backup lê `arquivo_backup` mas service grava `nome_arquivo` → alinhar
+### 3. Fixes de runtime (auditoria) — ✅ Concluído (07/08)
+- [x] `dados_bancarios` e `auxilios_terceiros`: código grava **objeto/array** — Appwrite não tem tipo objeto/JSON → patch de código (`JSON.stringify`/`JSON.parse`) nos pontos de escrita/leitura (profile/actions.ts, admin users, requests)
+- [x] `requests/page.tsx` usa `NEXT_PUBLIC_APPWRITE_DATABASE_ID` → trocar por `APPWRITE_DATABASE_ID` ou renomear env
+- [x] `historico_backups`: página admin/backup lê `arquivo_backup` mas service grava `nome_arquivo` → alinhar
 - [ ] Verificar uso de `documentSecurity`/permissões de documento nos `listDocuments` admin
 
 ### 4. Site + Deploy (Appwrite Sites)
@@ -92,19 +92,27 @@
 
 ---
 
-## ▶️ Próximo passo exato (passo 3 — fix de runtime, `dados_bancarios`)
+## ▶️ Próximo passo exato (passo 3 — fix de runtime, `dados_bancarios`) ✅
 
 **Objetivo:** fazer o app escrever/ler campos do tipo objeto/array como **string JSON** no Appwrite (única forma aceita pelo 1.8.1).
 
-1. `src/app/dashboard/profile/actions.ts` — ao salvar perfil, gravar `dados_bancarios: JSON.stringify({ banco, agencia, conta, pix })` em vez do objeto (linha ~85)
-2. `src/app/dashboard/requests/actions.ts` — ao criar solicitação, gravar `auxilios_terceiros: JSON.stringify(auxilios_terceiros)` (linha ~167)
-3. Todos os pontos que **leem** `dados_bancarios` (forma: `profile.dados_bancarios?.banco` etc.) e `auxilios_terceiros` → aplicar `JSON.parse` defensivo (helper `safeJsonParse` ou try/catch)
-   - `src/app/dashboard/requests/actions.ts` (validação de cadastro completo, linhas ~91-96)
-   - admin users (`src/app/actions/admin-actions.ts`, `formatDoc`) e páginas que exibem/permitem editar
-4. Rodar `npx tsc --noEmit` e `npm run build`
+1. ✅ `src/app/dashboard/profile/actions.ts` — ao salvar perfil, gravar `dados_bancarios: JSON.stringify({ banco, agencia, conta, pix })` em vez do objeto (linha ~85)
+2. ✅ `src/app/dashboard/requests/actions.ts` — ao criar solicitação, gravar `auxilios_terceiros: JSON.stringify(auxilios_terceiros)` (linha ~167) e também no update (linha ~288)
+3. ✅ Todos os pontos que **leem** `dados_bancarios` (forma: `profile.dados_bancarios?.banco` etc.) e `auxilios_terceiros` → aplicar `JSON.parse` defensivo (helper `safeJsonParse` ou try/catch)
+   - ✅ `src/lib/format-utils.ts` — novo helper `safeJsonParse` + tipos `DadosBancarios` e `AuxilioTerceiro`
+   - ✅ `src/app/dashboard/requests/actions.ts` (validação de cadastro completo, linhas ~91-96)
+   - ✅ `src/app/dashboard/requests/new/page.tsx` (validação antes do form)
+   - ✅ `src/app/dashboard/requests/new/request-form.tsx` (parseAuxilios)
+   - ✅ `src/app/dashboard/requests/[id]/page.tsx` (exibição auxílios)
+   - ✅ `src/app/dashboard/profile/profile-form.tsx` (defaultValue dos inputs)
+   - ✅ admin users (`src/app/dashboard/admin/users/page.tsx`, leitura e escrita)
+   - ✅ admin requests `[id]/page.tsx` (dados_bancarios + auxiliosTerceiros)
+4. ✅ Rodar `npx tsc --noEmit` e `npm run build`
 5. (Se necessário) gerar 1 usuário de teste + `createDocument` via API para validar gravação de JSON
 
-Depois: fechar itens `requests/page.tsx` env, `historico_backups.arquivo_backup` (linha: páginas usam `arquivo_backup`, service grava `nome_arquivo`), e permissões docs — então avançar p/ **passo 4 (Site Appwrite + Deploy)**.
+Também concluído: `requests/page.tsx` env (`NEXT_PUBLIC_APPWRITE_DATABASE_ID` → `APPWRITE_DATABASE_ID`) e `historico_backups.arquivo_backup` (página agora lê `nome_arquivo`, que é o campo gravado pelo service).
+
+Próximo: verificar permissões de documento (`documentSecurity`) nos `listDocuments` admin → avançar p/ **passo 4 (Site Appwrite + Deploy)**.
 
 ---
 
@@ -112,3 +120,20 @@ Depois: fechar itens `requests/page.tsx` env, `historico_backups.arquivo_backup`
 - **NÃO tocar** `acomoda-facil` (produção) nem `relatorios`
 - Credenciais só em `.env.local` (gitignored) — nunca commitar
 - Deploy obrigatório após cada alteração de código (padrão AGENTS.md)
+
+---
+
+## 📋 Tarefas Futuras
+
+### Integração Auth Appwrite com Perfis de Usuário
+- [ ] Integrar autenticação do sistema com gestão de usuários nativa do Appwrite (Appwrite Auth/Users)
+- [ ] Usar perfis de usuários do Appwrite para controle de acesso baseado em roles:
+  - **Administrador** — acesso total (criar/editar/excluir tudo, gerenciar usuários, configurações)
+  - **Autorizador Financeiro** — aprovar/rejeitar solicitações, registrar pagamentos, valores financeiros
+  - **Autorizador Rede** — pré-aprovar solicitações da rede, visualizar dashboard
+  - **Solicitante** — criar/editar próprias solicitações, prestação de contas, perfil
+- [ ] Mapear `tipo_perfil_id` da coleção `usuarios` para roles do Appwrite (via labels/preferences ou coleção separada de roles)
+- [ ] Middleware `src/app/proxy.ts` validar role via `account.get()` + preferences/labels
+- [ ] Remover verificação manual de `tipo_perfil_id` em `requireProfile()` (admin-actions.ts) em favor de roles nativos
+- [ ] Configurar recovery de senha via Appwrite nativo (email templates, fluxo reset)
+- [ ] Sincronizar criação de usuário no Appwrite Auth com documento na coleção `usuarios` (webhook ou action pós-cadastro)

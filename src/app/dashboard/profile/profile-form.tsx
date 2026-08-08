@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
 import { User, Upload, CheckCircle, XCircle, Loader2 } from 'lucide-react'
-import { formatDocumento } from '@/lib/format-utils'
+import { formatDocumento, safeJsonParse, DadosBancarios } from '@/lib/format-utils'
 
 interface Category {
     id: number
@@ -81,6 +81,11 @@ export function ProfileForm({ user, categories }: ProfileFormProps) {
             </div>
         )
     }
+
+    const banco = safeJsonParse<DadosBancarios>(user.dados_bancarios, {}).banco || ''
+    const agencia = safeJsonParse<DadosBancarios>(user.dados_bancarios, {}).agencia || ''
+    const conta = safeJsonParse<DadosBancarios>(user.dados_bancarios, {}).conta || ''
+    const pix = safeJsonParse<DadosBancarios>(user.dados_bancarios, {}).pix || ''
 
     return (
         <div className="space-y-10">
@@ -199,7 +204,7 @@ export function ProfileForm({ user, categories }: ProfileFormProps) {
                                 label="Banco"
                                 name="banco"
                                 placeholder="Ex: Banco do Brasil"
-                                defaultValue={user.dados_bancarios?.banco}
+                                defaultValue={banco}
                             />
 
                             <div className="grid grid-cols-2 gap-4">
@@ -207,13 +212,13 @@ export function ProfileForm({ user, categories }: ProfileFormProps) {
                                     label="Agência"
                                     name="agencia"
                                     placeholder="0000-0"
-                                    defaultValue={user.dados_bancarios?.agencia}
+                                    defaultValue={agencia}
                                 />
                                 <Input
                                     label="Conta"
                                     name="conta"
                                     placeholder="00000-0"
-                                    defaultValue={user.dados_bancarios?.conta}
+                                    defaultValue={conta}
                                 />
                             </div>
 
@@ -221,7 +226,7 @@ export function ProfileForm({ user, categories }: ProfileFormProps) {
                                 label="Chave PIX"
                                 name="pix"
                                 placeholder="CPF, E-mail ou Telefone"
-                                defaultValue={user.dados_bancarios?.pix}
+                                defaultValue={pix}
                             />
                             </div>
                         </Card>

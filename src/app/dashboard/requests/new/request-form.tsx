@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Plus, Trash2, CheckCircle, Send, Pencil } from 'lucide-react'
+import { safeJsonParse, AuxilioTerceiro } from '@/lib/format-utils'
 
 interface Distancia {
     id: number
@@ -94,13 +95,12 @@ export function RequestForm({ distancias, initialData }: { distancias: Distancia
     const [outrosEvento, setOutrosEvento] = useState(isOutrosEvento ? initialData.tipo_evento : '')
     const [outrosInstituicao, setOutrosInstituicao] = useState(isOutrosInstituicao ? initialData.instituicao_executora : '')
 
-    const parseAuxilios = (): { tipo: string; quantidade: number }[] => {
+    const parseAuxilios = (): AuxilioTerceiro[] => {
         if (!initialData?.auxilios_terceiros) return []
-        if (Array.isArray(initialData.auxilios_terceiros)) return initialData.auxilios_terceiros
-        try { return JSON.parse(initialData.auxilios_terceiros as any) } catch { return [] }
+        return safeJsonParse<AuxilioTerceiro[]>(initialData.auxilios_terceiros, [])
     }
 
-    const [auxilios, setAuxilios] = useState<{ tipo: string; quantidade: number }[]>(parseAuxilios())
+    const [auxilios, setAuxilios] = useState<AuxilioTerceiro[]>(parseAuxilios())
     const [selectedAuxilio, setSelectedAuxilio] = useState('')
     const [quantidadeAuxilio, setQuantidadeAuxilio] = useState(1)
 

@@ -2,6 +2,7 @@ import { createClient, createAdminClient } from '@/lib/appwrite/server'
 import { RequestForm } from './request-form'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { safeJsonParse, DadosBancarios } from '@/lib/format-utils'
 
 export default async function NewRequestPage() {
     const { account } = await createClient()
@@ -28,11 +29,12 @@ export default async function NewRequestPage() {
         // ignore
     }
 
-    const hasBankDetails = profile?.dados_bancarios?.banco &&
-        profile?.dados_bancarios?.agencia &&
-        profile?.dados_bancarios?.conta
+    const bankData = safeJsonParse<DadosBancarios>(profile?.dados_bancarios, {})
+    const hasBankDetails = bankData.banco &&
+        bankData.agencia &&
+        bankData.conta
 
-    const hasPix = !!profile?.dados_bancarios?.pix
+    const hasPix = !!bankData.pix
     const isProfileComplete = profile?.categoria_id && (hasBankDetails || hasPix)
 
     let distancias: any[] = []

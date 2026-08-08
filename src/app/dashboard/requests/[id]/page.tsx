@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card'
 import { ArrowLeft, Calendar, MapPin, Plane, Car, Hotel, AlertCircle, HandHeart, Info, FileText } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { AccountabilityFilesList } from '@/components/dashboard/accountability-files-list'
-import { formatDate } from '@/lib/format-utils'
+import { formatDate, safeJsonParse, AuxilioTerceiro } from '@/lib/format-utils'
 
 export default async function RequestDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -57,16 +57,7 @@ export default async function RequestDetailsPage({ params }: { params: Promise<{
         )
     }
 
-    let auxilios: any[] = []
-    if (Array.isArray(combinedRequest.auxilios_terceiros)) {
-        auxilios = combinedRequest.auxilios_terceiros
-    } else if (typeof combinedRequest.auxilios_terceiros === 'string') {
-        try {
-            auxilios = JSON.parse(combinedRequest.auxilios_terceiros)
-        } catch (e) {
-            auxilios = []
-        }
-    }
+    let auxilios: AuxilioTerceiro[] = safeJsonParse<AuxilioTerceiro[]>(combinedRequest.auxilios_terceiros, [])
 
     return (
         <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 lg:space-y-8 pb-12">

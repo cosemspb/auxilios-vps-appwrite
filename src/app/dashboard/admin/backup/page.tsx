@@ -268,7 +268,7 @@ export default function BackupPage() {
                                             <StatusBadge status={b.status} />
                                         </td>
                                         <td className="py-2 px-3 text-sm text-gray-600 font-mono">
-                                            {b.arquivo_backup || '-'}
+                                            {b.nome_arquivo || b.arquivo_backup || '-'}
                                         </td>
                                         <td className="py-2 px-3 text-sm text-gray-600">
                                             {formatBytes(b.tamanho_bytes)}

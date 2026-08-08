@@ -82,7 +82,7 @@ export async function updateProfile(prevState: ProfileState, formData: FormData)
 
     const updateData: any = {
         nome,
-        dados_bancarios: { banco, agencia, conta, pix },
+        dados_bancarios: JSON.stringify({ banco, agencia, conta, pix }),
         necessidades_especiais,
         categoria_id: parseInt(categoria_id),
     }

@@ -9,7 +9,7 @@ import { Modal } from '@/components/ui/modal'
 import { getUsersList, getAllCategories, updateUserProfile } from '@/app/actions/admin-actions'
 import { inviteUser, resetUserPassword, diagnosticLogin } from '@/app/actions/auth-actions'
 import { Search, Loader2, UserPlus, Pencil, X, Copy, Check } from 'lucide-react'
-import { formatDocumento } from '@/lib/format-utils'
+import { formatDocumento, safeJsonParse, DadosBancarios } from '@/lib/format-utils'
 
 export default function UsersPage() {
     const [users, setUsers] = useState<any[]>([])
@@ -129,14 +129,15 @@ export default function UsersPage() {
     const [diagnosticLoading, setDiagnosticLoading] = useState(false)
 
     const openEditModal = (user: any) => {
+        const bankData = safeJsonParse<DadosBancarios>(user.dados_bancarios, {})
         setEditUser(user)
         setEditNome(user.nome || '')
         setEditWhatsapp(user.whatsapp || '')
         setEditNecessidades(user.necessidades_especiais || '')
-        setEditBanco(user.dados_bancarios?.banco || '')
-        setEditAgencia(user.dados_bancarios?.agencia || '')
-        setEditConta(user.dados_bancarios?.conta || '')
-        setEditPix(user.dados_bancarios?.pix || '')
+        setEditBanco(bankData.banco || '')
+        setEditAgencia(bankData.agencia || '')
+        setEditConta(bankData.conta || '')
+        setEditPix(bankData.pix || '')
         setEditPerfil(String(user.tipo_perfil_id))
         setEditStatus(user.status)
         setEditCategoria(user.categoria_id ? String(user.categoria_id) : '')
@@ -159,7 +160,7 @@ export default function UsersPage() {
                 nome: editNome,
                 whatsapp: editWhatsapp || null,
                 necessidades_especiais: editNecessidades || null,
-                dados_bancarios: { banco: editBanco || '', agencia: editAgencia || '', conta: editConta || '', pix: editPix || '' },
+                dados_bancarios: JSON.stringify({ banco: editBanco || '', agencia: editAgencia || '', conta: editConta || '', pix: editPix || '' }),
                 tipo_perfil_id: parseInt(editPerfil),
                 status: editStatus,
                 categoria_id: editCategoria ? parseInt(editCategoria) : null

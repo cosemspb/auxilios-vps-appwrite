@@ -4,7 +4,7 @@ import { ArrowLeft, User, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { notFound } from 'next/navigation'
-import { formatDocumento, formatCurrency, formatDate } from '@/lib/format-utils'
+import { formatDocumento, formatCurrency, formatDate, safeJsonParse, DadosBancarios, AuxilioTerceiro } from '@/lib/format-utils'
 
 export default async function RequestAnalysisPage({
     params,
@@ -61,19 +61,19 @@ export default async function RequestAnalysisPage({
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-primary">Banco</label>
-                                <p className="text-gray-900">{request.usuarios?.dados_bancarios?.banco || 'Não informado'}</p>
+                                <p className="text-gray-900">{safeJsonParse<DadosBancarios>(request.usuarios?.dados_bancarios, {}).banco || 'Não informado'}</p>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-primary">Agência</label>
-                                <p className="text-gray-900">{request.usuarios?.dados_bancarios?.agencia || 'Não informado'}</p>
+                                <p className="text-gray-900">{safeJsonParse<DadosBancarios>(request.usuarios?.dados_bancarios, {}).agencia || 'Não informado'}</p>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-primary">Conta</label>
-                                <p className="text-gray-900">{request.usuarios?.dados_bancarios?.conta || 'Não informado'}</p>
+                                <p className="text-gray-900">{safeJsonParse<DadosBancarios>(request.usuarios?.dados_bancarios, {}).conta || 'Não informado'}</p>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-primary">Chave PIX</label>
-                                <p className="text-gray-900">{request.usuarios?.dados_bancarios?.pix || 'Não informado'}</p>
+                                <p className="text-gray-900">{safeJsonParse<DadosBancarios>(request.usuarios?.dados_bancarios, {}).pix || 'Não informado'}</p>
                             </div>
                         </div>
                         <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center border-2 border-white shadow-sm">
@@ -159,7 +159,7 @@ export default async function RequestAnalysisPage({
                 calculatedValues={calculatedValues}
                 categoria={request.usuarios?.categorias?.nome_categoria || ''}
                 categoriaId={request.usuarios?.categoria_id}
-                auxiliosTerceiros={request.auxilios_terceiros || []}
+                auxiliosTerceiros={safeJsonParse<AuxilioTerceiro[]>(request.auxilios_terceiros, [])}
                 reducaoDiariasAtual={request.reducao_diarias_50 || false}
                 currentStatus={request.situacao}
                 userPerfil={request.usuarios?.tipo_perfil_id}

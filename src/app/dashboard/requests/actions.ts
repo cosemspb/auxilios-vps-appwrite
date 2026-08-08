@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient, createAdminClient } from '@/lib/appwrite/server'
 import { Query, ID } from 'node-appwrite'
 import { createRequestSchema } from '@/lib/schemas'
+import { safeJsonParse, DadosBancarios } from '@/lib/format-utils'
 
 const LOCK_TIMEOUT_MINUTES = 10
 
@@ -88,11 +89,11 @@ export async function createRequest(prevState: any, formData: FormData) {
         return { error: 'Perfil não encontrado ou CPF não cadastrado.' }
     }
 
-    const hasBankDetails = profile.dados_bancarios?.banco &&
-        profile.dados_bancarios?.agencia &&
-        profile.dados_bancarios?.conta
+    const hasBankDetails = safeJsonParse<DadosBancarios>(profile.dados_bancarios, {}).banco &&
+        safeJsonParse<DadosBancarios>(profile.dados_bancarios, {}).agencia &&
+        safeJsonParse<DadosBancarios>(profile.dados_bancarios, {}).conta
 
-    const hasPix = !!profile.dados_bancarios?.pix
+    const hasPix = !!safeJsonParse<DadosBancarios>(profile.dados_bancarios, {}).pix
     const isProfileComplete = profile.categoria_id && (hasBankDetails || hasPix)
 
     if (!isProfileComplete) {
@@ -164,7 +165,7 @@ export async function createRequest(prevState: any, formData: FormData) {
         tem_aereo: formData.get('tem_aereo') === 'on',
         voo_ida: formData.get('voo_ida'),
         voo_volta: formData.get('voo_volta'),
-        auxilios_terceiros: auxilios_terceiros,
+        auxilios_terceiros: JSON.stringify(auxilios_terceiros),
         hospedagem_cosems: formData.get('hospedagem_cosems') === 'on',
         observacoes: formData.get('observacoes'),
         situacao: 'pendente',
@@ -285,7 +286,7 @@ export async function updateRequest(prevState: any, formData: FormData) {
         tem_aereo: formData.get('tem_aereo') === 'on',
         voo_ida: formData.get('voo_ida'),
         voo_volta: formData.get('voo_volta'),
-        auxilios_terceiros: auxilios_terceiros,
+        auxilios_terceiros: JSON.stringify(auxilios_terceiros),
         hospedagem_cosems: formData.get('hospedagem_cosems') === 'on',
         observacoes: formData.get('observacoes'),
     }

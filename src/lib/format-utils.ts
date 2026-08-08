@@ -99,3 +99,28 @@ export function calculateEstimatedValue(req: {
 
     return (days * dailyRate) + distanceValue
 }
+
+export function safeJsonParse<T>(value: unknown, fallback: T): T {
+    if (value === null || value === undefined) return fallback
+    if (typeof value === 'object') return value as T
+    if (typeof value === 'string') {
+        try {
+            return JSON.parse(value) as T
+        } catch {
+            return fallback
+        }
+    }
+    return fallback
+}
+
+export interface DadosBancarios {
+    banco?: string
+    agencia?: string
+    conta?: string
+    pix?: string
+}
+
+export interface AuxilioTerceiro {
+    tipo: string
+    quantidade: number
+}
