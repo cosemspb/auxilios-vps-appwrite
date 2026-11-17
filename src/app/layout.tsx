@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Open_Sans, Roboto, Montserrat, Lato } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
+import { Roboto } from "next/font/google";
+import { Montserrat } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import { getSystemSettings } from "@/app/actions/system-actions";
 
