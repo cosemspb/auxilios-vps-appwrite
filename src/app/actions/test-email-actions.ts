@@ -62,8 +62,8 @@ export async function sendTestTemplateEmail(templateKey: string): Promise<{ succ
     const nomeConvite = sample.nome || 'João Silva'
     const emailConvite = sample.email || email
     const senhaTemp = sample.senha_temporaria || 'Cosems@2026!'
-    const linkAcesso = sample.link_acesso || 'https://auxilios.cosemspb.org/login'
-    const resetLink = sample.reset_link || 'https://auxilios.cosemspb.org/auth/update-password?token=test'
+    const linkAcesso = sample.link_acesso || 'https://novoauxilio.cosemspb.org/login'
+    const resetLink = sample.reset_link || 'https://novoauxilio.cosemspb.org/auth/update-password?token=test'
 
     let html: string
     let subject: string

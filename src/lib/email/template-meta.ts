@@ -170,13 +170,13 @@ export const TEMPLATES: TemplateMeta[] = [
             { key: 'nome', label: 'Nome do Usuário', example: 'João Silva' },
             { key: 'email', label: 'E-mail do Usuário', example: 'joao@example.com' },
             { key: 'senha_temporaria', label: 'Senha Temporária', example: 'Cosems@2026!' },
-            { key: 'link_acesso', label: 'Link de Acesso', example: 'https://auxilios.cosemspb.org/login' },
+            { key: 'link_acesso', label: 'Link de Acesso', example: 'https://novoauxilio.cosemspb.org/login' },
         ],
         sampleArgs: {
             nome: 'João Silva',
             email: 'joao@example.com',
             senha_temporaria: 'Cosems@2026!',
-            link_acesso: 'https://auxilios.cosemspb.org/login',
+            link_acesso: 'https://novoauxilio.cosemspb.org/login',
         },
         templateFn: 'getInviteTemplate(nome, email, senha, link)',
     },
@@ -187,10 +187,10 @@ export const TEMPLATES: TemplateMeta[] = [
         subject: 'Recuperação de Senha - Gestão de Auxílios',
         recipient: 'Solicitante da recuperação',
         availableFields: [
-            { key: 'reset_link', label: 'Link de Redefinição', example: 'https://auxilios.cosemspb.org/auth/update-password?token=abc123' },
+            { key: 'reset_link', label: 'Link de Redefinição', example: 'https://novoauxilio.cosemspb.org/auth/update-password?token=abc123' },
         ],
         sampleArgs: {
-            reset_link: 'https://auxilios.cosemspb.org/auth/update-password?token=abc123',
+            reset_link: 'https://novoauxilio.cosemspb.org/auth/update-password?token=abc123',
         },
         templateFn: 'getResetPasswordTemplate(link)',
     },

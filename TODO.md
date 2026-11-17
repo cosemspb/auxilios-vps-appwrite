@@ -1,6 +1,6 @@
 # TODO — Migração Supabase → Appwrite (Port)
 
-> Última atualização: 03/08/2026 — Projeto: `C:\_Apps\auxilios-vps-appwrite`
+> Última atualização: 08/08/2026 — Projeto: `C:\_Apps\auxilios-vps-appwrite`
 > Servidor: `https://vps.cosemspb.org/v1` (Appwrite 1.8.1) · Projeto: `auxilios` · Repo: `cosemspb/auxilios-vps-appwrite` (master)
 
 ---
@@ -81,13 +81,20 @@
 - [x] `historico_backups`: página admin/backup lê `arquivo_backup` mas service grava `nome_arquivo` → alinhar
 - [ ] Verificar uso de `documentSecurity`/permissões de documento nos `listDocuments` admin
 
-### 4. Site + Deploy (Appwrite Sites)
-- [ ] Verificar escopos da API key (`sites.*` p/ deploy) — se faltar, pedir nova key ao usuário
-- [ ] Criar site `auxilios-web` (framework `nextjs`, adapter `ssr`, buildRuntime node-22, install `npm install`, build `npm run build`, output `.next`, start `bash helpers/next-js/server.sh`)
-- [ ] Variáveis do site: `NEXT_PUBLIC_APPWRITE_ENDPOINT`, `NEXT_PUBLIC_APPWRITE_PROJECT_ID=auxilios`, `APPWRITE_API_KEY`, `APPWRITE_DATABASE_ID=auxilios`, `NEXT_PUBLIC_APP_URL=https://auxilios.cosemspb.org`, `SMTP_ENCRYPTION_KEY`
-- [ ] Resolver `output: 'standalone'` em `next.config.ts` vs adapter ssr dos Sites
-- [ ] Confirmar DNS A `auxilios.cosemspb.org → 108.174.151.235`
-- [ ] Empacotar `.next` + `public` + `package.json` + node_modules em tar.gz → `POST /v1/sites/auxilios-web/deployments` com `activate=true` (padrão roomlist-web)
+### 4. Site + Deploy (Appwrite Sites) — 🔄 Em andamento (08/08)
+- [x] API key tinha escopos `sites.*` (listar/criar site, deployments, variáveis OK)
+- [x] Site `auxilios-web` criado (framework `nextjs`, adapter `ssr`, buildRuntime node-22, install `npm install`, build `npm run build`, output `.next`/`outputDirectory`, timeout 60) — GET `/v1/sites` confirma
+- [x] 6 variáveis do site criadas via `POST /v1/sites/auxilios-web/variables` (não `PUT .../vars` — esse endpoint dá 404 no 1.8.1): `NEXT_PUBLIC_APPWRITE_ENDPOINT`, `NEXT_PUBLIC_APPWRITE_PROJECT_ID=auxilios`, `APPWRITE_API_KEY` (secret), `APPWRITE_DATABASE_ID=auxilios`, `NEXT_PUBLIC_APP_URL=https://auxilios.cosemspb.org`, `SMTP_ENCRYPTION_KEY` (secret)
+- [x] `output: 'standalone'` em `next.config.ts` **OK** — open-runtimes node-22 detecta standalone e roda SSR (`helpers/next-js/server.sh` embutido, não precisa estar no repo)
+- [x] Tarball `auxilios-web.tar.gz` (1,11 MB, sem node_modules/.next/.git/.env.local) → `POST /v1/sites/auxilios-web/deployments` com `code` multipart + `activate=true` → deployment `6a768472e68cf10a04a7`
+- [x] **Build OK**: `npm install` (454 pkgs) + `next build` 27/27 páginas + "Detected standalone Next.js build" → bundling SSR OK → screenshots light/dark capturados → status `ready` (46s)
+- [x] Erro 401 esperado no prerender de `/dashboard/requests` (guest sem scope `account`) tratado — build não quebra
+- [x] Site `live: true`, `enabled: true`, `latestDeploymentStatus: ready`
+- [ ] **URL pública**: console mostra `http://6a768472ebcbee2f4b25.sites.localhost/` mas **não acessível** — `sites.localhost` é o default de `_APP_DOMAIN_SITES` (TLD reservado, sem DNS público nem cert). Rotear pelo Host header no traefik chega ao Appwrite (301→https, depois 404 com página Nunito do próprio Appwrite = sem rule para o host)
+- [ ] **Adicionar domínio customizado** no console: Sites → auxilios-web → aba Domains → `auxilios.cosemspb.org` (API key atual não tem escopo `rules.write` — fazer pelo console)
+- [ ] Corrigir DNS: CNAME `auxilios` → `vps.cosemspb.org` (ou A → `108.174.151.235`) — hoje aponta pro Vercel antigo
+- [ ] Rule `verifying` → `verified` (validação DNS + certificado Let's Encrypt automático)
+- [ ] Validar `https://auxilios.cosemspb.org` respondendo o app
 - [ ] Testar produção: login, fluxo completo de solicitação, upload de comprovantes, PC, backup/restore
 
 ---
@@ -110,9 +117,9 @@
 4. ✅ Rodar `npx tsc --noEmit` e `npm run build`
 5. (Se necessário) gerar 1 usuário de teste + `createDocument` via API para validar gravação de JSON
 
-Também concluído: `requests/page.tsx` env (`NEXT_PUBLIC_APPWRITE_DATABASE_ID` → `APPWRITE_DATABASE_ID`) e `historico_backups.arquivo_backup` (página agora lê `nome_arquivo`, que é o campo gravado pelo service).
+Também concluído: `requests/page.tsx` env (`NEXT_PUBLIC_APPWRITE_DATABASE_ID` → `APPWRITE_DATABASE_ID`) e `historico_backups.arquivo_backup` (página agora lê `nome_arquivo`, que é o campo gravado pelo service). Commit `68c5125` (12 arquivos) pusheado em `master` + deploy Easypanel disparado.
 
-Próximo: verificar permissões de documento (`documentSecurity`) nos `listDocuments` admin → avançar p/ **passo 4 (Site Appwrite + Deploy)**.
+Próximo: verificar permissões de documento (`documentSecurity`) nos `listDocuments` admin → avançar p/ **passo 4 (Site Appwrite + Deploy)** — em andamento (site live, falta domínio público).
 
 ---
 
